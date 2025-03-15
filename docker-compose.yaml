@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # PostgreSQL service
+  postgres:
+    image: postgres:latest  # Utiliser la dernière version de PostgreSQL
+    container_name: postgres-db  # Nom du conteneur PostgreSQL
+    restart: always
+    ports:
+      - "5432:5432"  # Exposer le port PostgreSQL
+    environment:  # Définir les variables d'environnement PostgreSQL
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123
+      - POSTGRES_DB=nestDB
+    volumes:
+      - postgres-data:/var/lib/postgresql/data  # Sauvegarder les données dans un volume
+    networks: 
+      - mynetwork
+
+  # NestJS Service
+  nestjs-app:
+    build: .
+    container_name: nestjs
+    restart: always
+    ports: 
+      - "3000:3000"
+    depends_on:  # Assurer que PostgreSQL démarre avant l'application
+      - postgres
+    volumes:
+      - .:/app
+    command: ["npm", "run", "start:dev"]    
+    environment:
+      - DATABASE_URL=postgresql://postgres:123@postgres:5432/nestDB
+
+networks:  # Définir un réseau personnalisé
+  mynetwork:       
+
+volumes:  # Définir un volume pour stocker les données PostgreSQL
+  postgres-data:
