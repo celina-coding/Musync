@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Get, Patch, Post, Query } from "@nestjs/common";
 import { MusicService } from "./music.service";
+import { request } from "http";
 
 @Controller('music')
 export class MusicController{
@@ -13,6 +14,41 @@ export class MusicController{
     ){
         return this.musicService.setUserMedia(userId, tokenAccount, mediaName);
     }
+
+    // http://localhost:3333/music/sendRequestToAPI?url=https://api.spotify.com/v1/me/playlists&userId=1
+    @Get('sendRequestToAPI')
+    sendRequestToAPI(
+        @Query('url') url: string, 
+        @Query('userId') userId: string,
+    ) {
+        const userIdNumber = parseInt(userId, 10); // Convertir le userId en un nombre
+        if (isNaN(userIdNumber)) {
+            throw new Error("Invalid userId: must be a number");
+        }
+    
+        const request = { url }; // Create a request object
+        return this.musicService.sendRequestToAPI(request, userIdNumber);
+    }
+
+   @Get('sendRequestToSpotify')
+    sendRequestToSpotify(
+        @Query('request') request: Request,
+        @Query('userId') userId: string,
+    ){
+        const userIdNumber = parseInt(userId, 10); // Convertir le userId en un nombre
+        return this.musicService.sendRequestToSpotify(request, userIdNumber);
+    }
+
+    @Get('sendRequestToAppleMusic')
+    sendRequestToAppleMusic(
+        @Query('request') request: Request,
+        @Query('userId') userId: number,
+    ){
+        return this.musicService.sendRequestToAppleMusic(request, userId);
+    }
+
+
+    
 
 
     @Get('getSharedPlaylists')
@@ -36,13 +72,5 @@ export class MusicController{
     @Post('postSharedMusic')
     postUserSharedMusic(){}
 
-    @Post('sendRequestToAPI')
-    sendRequestToAPI(){}
-
-    @Post('sendRequestToSpotify')
-    sendRequestToSpotify(){}
-
-    @Post('sendRequestToAppleMusic')
-    sendRequestToAppleMusic(){}
-
+   
 }   
