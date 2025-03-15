@@ -47,9 +47,15 @@ export class MusicController{
         return this.musicService.sendRequestToAppleMusic(request, userId);
     }
 
-
-    
-
+    @Post('sharedPlaylist')
+    postUserSharedPlaylist(
+        @Body('userId') userId: number,
+        @Body('playlistId') playlistId: string,
+    )
+    {
+        return this.musicService.postUserSharedPlaylist(userId,playlistId);
+ 
+    }
 
     @Get('getSharedPlaylists')
     getUserSharedPlaylists(){}
@@ -66,8 +72,7 @@ export class MusicController{
     @Get('getMediaToken')
     getUserMediaToken(){}
 
-    @Post('postSharedPlaylist')
-    postUserSharedPlaylist(){}
+  
 
     @Post('postSharedMusic')
     postUserSharedMusic(){}

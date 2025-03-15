@@ -34,6 +34,9 @@ export class MusicService{
         return userMedia;
     }
 
+    async getUserMedia(userId: number){}
+    async getUserMediaToken(userId: number){}
+
     // Cette fonction permet d'envoyer une requete à ne de nos API
     async sendRequestToAPI(request: { url: string }, userId: number) {
         const userMediaName = await this.prisma.userMusicPlatform.findUnique({
@@ -80,16 +83,35 @@ export class MusicService{
         throw new error("The Apple Music API is not yet supported");
     }
 
-    async postUserSharedMusic(userId: number, musicId: number){}
-    async postUserSharedPlaylist(userId: number, playlistId: number){}
+    // Cette fonction permet à l'utilisateur de partager une playlist avec les autres utilisateurs
+    async postUserSharedPlaylist(userId: number, playlistId: string){
+        const playlistAlreadyShared = await this.prisma.userSharedPlaylist.findFirst({
+            where: {
+                user_id: userId,
+                playlist_id: playlistId,
+            }
+        });
+        if(playlistAlreadyShared){
+            throw new Error('Playlist already shared');
+        }
+        console.log("playlist shared ...");
+        const playlistToAdd = await this.prisma.userSharedPlaylist.create({
+            data: {
+                playlist_id: playlistId,
+                user_id: userId,
+            },
+        });
+        return playlistToAdd;
+    }
 
 
     async getUserSharedPlaylists(userId: number){}
     async getUserSharedPlaylist(userId: number, playlistId: number){}
+
+    async postUserSharedMusic(userId: number, musicId: number){}
     async getUserSharedMusics(userId: number){}
     async getUserSharedMusic(userId: number, musicId: number){}
-    async getUserMedia(userId: number){}
-    async getUserMediaToken(userId: number){}
+  
     
     
     

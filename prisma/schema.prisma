@@ -20,13 +20,13 @@ enum MusicPlatform {
 
 model UserSharedPlaylist {
   user_shared_playlist_id Int @id @default(autoincrement())
-  playlist_id             Int
+  playlist_id            String @unique
   user_id                 Int @unique
 }
 
 model UserSharedMusic {
   user_shared_music_id Int @id @default(autoincrement())
-  music_id            Int
+  music_id            String @unique
   user_id             Int @unique
 }
 
