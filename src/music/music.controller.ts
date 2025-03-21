@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Param, Patch, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Param, Patch, Post, Query, Res } from "@nestjs/common";
 import { MusicService } from "./music.service";
+import { Response } from 'express';
 import { request } from "http";
 
 @Controller('music')
@@ -86,11 +87,43 @@ export class MusicController{
  
     }
 
-    @Get('getSharedPlaylists')
-    getUserSharedPlaylists(){}
 
     @Get('getSharedPlaylist')
-    getUserSharedPlaylist(){}
+    async getUserSharedPlaylist(
+        @Query('userId') userId: string,
+        @Query('playlistId') playlistId: string,
+        @Res() res: Response
+    ){
+
+        try {
+            // Convertir userId en un nombre
+            const userIdNumber = parseInt(userId, 10);
+
+            // Appeler la méthode du service
+            const playlistDetails = await this.musicService.getUserSharedPlaylist(userIdNumber, playlistId);
+
+            // Retourner la réponse au client
+            return res.status(HttpStatus.OK).json(playlistDetails);
+        } catch (error) {
+            // Gérer les erreurs
+            console.error("Error in getUserSharedPlaylist:", error.message);
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+                error: "Failed to retrieve playlist details",
+                details: error.message,
+            });
+        }
+           
+            
+        
+
+        
+    }
+    
+
+
+    @Get('getSharedPlaylists')
+    getUserSharedPlaylists(){}
+   
 
     @Get('getSharedMusic')
     getUserSharedMusic(){}

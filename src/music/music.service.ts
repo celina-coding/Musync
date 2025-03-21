@@ -121,10 +121,49 @@ export class MusicService{
         return playlistToAdd;
     }
 
-    async getUserSharedPlaylist(userId: number, playlistId: number){
+    async getUserSharedPlaylist(userId: number, playlistId: string){
         
+        const sharedPlaylist = await this.prisma.userSharedPlaylist.findUnique({
+            where: {user_id: userId,
+                    playlist_id: playlistId},
+        });
 
+        if(!sharedPlaylist){
+            return {error: "Playlist not found"};
+        }
+
+        //On récupère la plateforme de musique de l'utilisateur
+        const userMedia = await this.getUserMedia(userId);
+
+        //On récupère le token de l'utilisateur
+        const userToken = await this.getUserMediaToken(userId);
+
+        let apiUrl: string;
+        let headers: Record<string, string>;
+
+       //On vérifie si l'utilisateur s'est connecté à Spotify ou à  Apple Music
+        switch(userMedia){
+            case MusicPlatform.SPOTIFY:
+                apiUrl = `https://api.spotify.com/v1/playlists/${sharedPlaylist.playlist_id}`;
+                headers = {
+                    Authorization: `Bearer ${userToken}`,
+                };                  
+                break;
+            case MusicPlatform.APPLE_MUSIC:
+                throw new Error("Apple Music API is not yet supported");    
+                break;
+            default:
+                throw new Error("Media not supported");    
+        }
+
+        const response = await firstValueFrom(
+            this.httpService.get(apiUrl,{headers}),
+        );
+
+        return response.data;
     }
+
+    
     async getUserSharedPlaylists(userId: number){}
    
 
