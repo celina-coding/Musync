@@ -34,38 +34,55 @@ export class MusicService{
         return userMedia;
     }
 
-    async getUserMedia(userId: number){}
-    async getUserMediaToken(userId: number){}
+    // Cette fonction nous permet de récupérer les type de media de l'utilisateur
+    // Cette fonction sera appelée dans queleques fonctions de notre service ce qui aide a factoriser notre code
+    async getUserMedia(userId: number){
 
-    // Cette fonction permet d'envoyer une requete à ne de nos API
-    async sendRequestToAPI(request: { url: string }, userId: number) {
-        const userMediaName = await this.prisma.userMusicPlatform.findUnique({
-            where: { user_id: userId },
+        const userMedia = await this.prisma.userMusicPlatform.findUnique({
+            where: {user_id: userId},
         });
-    
-        if (!userMediaName) {
-            return { error: "User media not found" };
+
+        if(userMedia){
+            return userMedia.music_media_id;
         }
+        else{
+            return {error: "User media not found"};
+        }
+
+
+    }
+
+
+    async getUserMediaToken(userId: number){
+
+        const userMedia = await this.prisma.userMusicPlatform.findUnique({
+            where: {user_id: userId},
+        });
+
+        if(!userMedia || !userMedia.token_account){
+            return {error: "User media not found"};
+        }
+
+        return userMedia.token_account;
+    }
+
+    // Cette fonction permet d'envoyer une requete à une de nos API
+    async sendRequestToAPI(request: { url: string }, userId: number) {
+        const userMediaName = await this.getUserMedia(userId);
     
-        if (userMediaName.music_media_id === MusicPlatform.SPOTIFY) {
+        if (userMediaName === MusicPlatform.SPOTIFY) {
             return this.sendRequestToSpotify(request, userId);
-        } else if (userMediaName.music_media_id === MusicPlatform.APPLE_MUSIC) {
+        } else if (userMediaName === MusicPlatform.APPLE_MUSIC) {
             return this.sendRequestToAppleMusic(request, userId);
         } else {
             throw new Error("Media not supported");
         }
     }
-    
+
+    // Cette fonction permet à l'utilisateur d'envoyer une requete à Spotify API
     async sendRequestToSpotify(request: { url: string }, userId: number) {
-        const user = await this.prisma.userMusicPlatform.findUnique({
-            where: { user_id: userId },
-        });
-        const userToken = user?.token_account;
-    
-        if (!userToken) {
-            throw new Error("User token not found");
-        }
-    
+        const userToken = await this.getUserMediaToken(userId);
+
         const response = await firstValueFrom(
             this.httpService.get(request.url, {
                 headers: {
@@ -104,9 +121,12 @@ export class MusicService{
         return playlistToAdd;
     }
 
+    async getUserSharedPlaylist(userId: number, playlistId: number){
+        
 
+    }
     async getUserSharedPlaylists(userId: number){}
-    async getUserSharedPlaylist(userId: number, playlistId: number){}
+   
 
     async postUserSharedMusic(userId: number, musicId: number){}
     async getUserSharedMusics(userId: number){}
