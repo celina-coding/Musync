@@ -340,4 +340,5 @@ export class MusicService{
         );
         return musicsDetails; // Renvoie un tableau de toutes les musiques
     }
+    
 }
