@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Param, Patch, Post, Query, Res } from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Param, Patch, Post, Query, Res, UseGuards } from "@nestjs/common";
 import { MusicService } from "./music.service";
 import { Response } from 'express';
 import { request } from "http";
@@ -10,24 +10,24 @@ export class MusicController{
 
     @Post('setMedia')
     setUserMedia(
-        @Body() dto: SetMediaDto
+        @Body() dto: SetMediaDto,
     ){
         return this.musicService.setUserMedia(dto);
     }
-
+    
     @Get('getMedia/:userId')
     async getUserMedia(
-        @Param('userId') userId: number
+        @Param('userId') userId: number,
     ){
         const userIdNumber = Number(userId);
         const userMedia = await this.musicService.getUserMedia(userIdNumber);
         return {userMedia};
 
     }
-
+   
     @Get('getMediaToken/:userId')
     async getUserMediaToken(
-        @Param('userId') userId: number
+        @Param('userId') userId: number,
     ){
         const userIdNumber = Number(userId);
         const userMediaToken = await this.musicService.getUserMediaToken(userIdNumber);
@@ -35,10 +35,12 @@ export class MusicController{
     }
 
     // http://localhost:3333/music/sendRequestToAPI?url=https://api.spotify.com/v1/me/playlists&userId=1
+    
     @Get('sendRequestToAPI')
     sendRequestToAPI(
         @Query('url') url: string, 
         @Query('userId') userId: string,
+        
     ) {
         const userIdNumber = parseInt(userId, 10); // Convert userId to a number
         if (isNaN(userIdNumber)) {
@@ -50,10 +52,12 @@ export class MusicController{
     }
 
     //http://localhost:3333/music/sendRequestToSpotify?url=https://api.spotify.com/v1/me/playlists&userId=1
+   
    @Get('sendRequestToSpotify')
     sendRequestToSpotify(
         @Query('url') url: string, 
         @Query('userId') userId: string,
+        
     ){
         const userIdNumber = parseInt(userId, 10); // Convertir le userId en un nombre
         if (isNaN(userIdNumber)) {
@@ -63,10 +67,12 @@ export class MusicController{
         return this.musicService.sendRequestToSpotify(request, userIdNumber);
     }
 
+    
     @Get('sendRequestToAppleMusic')
     sendRequestToAppleMusic(
         @Query('url') url: string, 
         @Query('userId') userId: string,
+       
     ){
         const userIdNumber = parseInt(userId, 10); // Convertir le userId en un nombre
         if (isNaN(userIdNumber)) {
@@ -76,21 +82,24 @@ export class MusicController{
         return this.musicService.sendRequestToAppleMusic(request, userIdNumber);
     }
 
+    
     @Post('sharedPlaylist')
     postUserSharedPlaylist(
         @Body('userId') userId: number,
         @Body('playlistId') playlistId: string,
+       
     )
     {
         return this.musicService.postUserSharedPlaylist(userId,playlistId);
  
     }
 
-
+    
     @Get('getSharedPlaylist')
     async getUserSharedPlaylist(
         @Query('userId') userId: string,
         @Query('playlistId') playlistId: string,
+        
         @Res() res: Response
     ){
 
@@ -114,10 +123,12 @@ export class MusicController{
            
     }
     
+   
     @Post('sharedMusic')
     postUserSharedMusic(
         @Body('userId') userId: number,
         @Body('musicId') musicId: string,
+        
     ){
         return this.musicService.postUserSharedMusic(userId, musicId);
     }
@@ -126,6 +137,7 @@ export class MusicController{
     async getUserSharedMusic(
         @Query('userId') userId: string,
         @Query('MusicId') musicId: string,
+        
         @Res() res: Response
     ){
         try {
@@ -146,10 +158,11 @@ export class MusicController{
             });
         }
     }
-   
+ 
     @Get('getSharedPlaylists')
     async getUserSharedPlaylists(
         @Query('userId') userId: string,
+      
         @Res() res: Response
     ){
         try {
@@ -171,9 +184,11 @@ export class MusicController{
         }
     }
 
+   
     @Get('getSharedMusics')
     async getUserSharedMusics(
         @Query('userId') userId: string,
+       
         @Res() res: Response
     ){
         try{
@@ -189,7 +204,4 @@ export class MusicController{
         }
     } 
 
-   
-
-   
 }   
